@@ -1,23 +1,14 @@
 import re, time, sys
 
-
-#script = "12.34>tes=t<123#§10{>\n<%#>\n<#§(1##{>\n<#§)>\nt+2<{§}"
-
-
-def exe(i, s = [], d = True):
-    o = ""
-    #replace = []
-    p = 0
-    l = []
-    m = re.compile(r"(?P<A>(\d+)\.?\d*|\[[^]^[]*\])|(?P<B>##?)|(?P<C>§)|(?P<D>{)|(?P<E>})|(?P<F>\()|(?P<G>\))|(?P<H>%)|(?P<I>!)|(?P<J>~)|(?P<K>@)").search
-    f = m(i)
+def exe(i, s = [], d = True, debug = False):
+    c=[r"(\d+),?\d*|\[[^]^[]*\]","##?","§","{","}",r"\(",r"\)","%","!","~","@",r"\<",r"\>",r"\.\.?"]
+    m = re.compile("|".join("(?P<%s>%s)"%(chr(65+p),c[p])for p in range(0,len(c)))).search
+    t,o,p,l,f = 0,"",0,[],m(i)
     while f is not None:
-        c = f.lastgroup
-        v = f.group()
-        p = f.end()
+        c,v,p = f.lastgroup,f.group(),f.end()
         if c == 'A':
             try:
-                s += [float(v)]
+                s += [float(v.replace(',', '.'))]
             except ValueError:
                 s += [v.strip('[]')]
         elif c == 'B':
@@ -31,7 +22,7 @@ def exe(i, s = [], d = True):
             else:
                 s += [v1 - v2]
         elif c == 'C':
-            v1 = s.pop()
+            v1 = str(s.pop())
             if d:
                 sys.stdout.write(v1)
             o += v1
@@ -44,7 +35,7 @@ def exe(i, s = [], d = True):
         elif c == 'G':
             if l:
                 v1 = l.pop()
-                if s[-1]:
+                if s and s[-1]:
                     p = v1 - 1
         elif c == 'H':
             v1 = s.pop()
@@ -56,19 +47,34 @@ def exe(i, s = [], d = True):
             s += [re.sub(str(s.pop()), str(s.pop()), str(s.pop()))]
         elif c == 'K':
             time.sleep(s.pop())
-        
-        #time.sleep(1)
-        #print(s, l, v)
+        elif c == 'L':
+            for v1 in str(s.pop()):
+                s += [ord(v1)]
+        elif c == 'M':
+            s += chr(int(s.pop()))
+        elif c == 'N':
+            v2 = s.pop()
+            v1 = s.pop()
+            if len(v) == 1:
+                s += [v1 * v2]
+            else:
+                s += [v1 / v2]
+        if debug:
+            print(s)
+        t += 1
         f = m(i, p)
-    return o, s
+    return o, s, t
     
 #script = "5(!§{({!#§1##)}1##)"
 
 #script = r"[World test][Hello \1\n][(?P<A>\w+)]~§"
 
-script = "100({100%##[% complete!]#!#§1##0.25@)"
+#script = "100({100%##[% \U63;omplete!]#!#§1##0.25@)[Done!]§"
 
-exe(script)
+script = "0[Tokn`chmfoqhu`sdehkdrsnFnnfkd9]<1#>%(1#>%#%)}§!§9({10%##10.0[$bnlokdsd ]<1#>%(1#>%#%)}#!#§1##0,25@)0[Cnmd ]<1#>%(1#>%#%)}§"
 
+#script = "0[Cnmd ]<1##>%(1##>%#%)}§"
 
-#\.|\(|\)|##
+o, s, t = exe(script)
+
+#print(t)
