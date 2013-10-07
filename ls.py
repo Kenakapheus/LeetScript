@@ -56,4 +56,3 @@ def e(i):
             else:
                 s += [v1 / v2]
         f = m(i, p)
-    return o
